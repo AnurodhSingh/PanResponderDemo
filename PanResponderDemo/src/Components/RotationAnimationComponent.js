@@ -16,23 +16,19 @@ export default class RotationAnimationComponent extends Component<Props> {
   }
   spinClockWise(){
     let { ClockWise, stop } = this.state;
-    this.setState({stop:true},()=>{
-      if(!ClockWise || stop) {
-        this.setState({stop: false, ClockWise: true},()=>{
-          this.spin();
-        });
-      }
-    })
+    if(!ClockWise){
+      this.spinValue = new Animated.Value(0);
+      this.setState({ ClockWise: true, stop:false});
+      this.spin();
+    }
   }
   spinAntiClockWise(){
     let { ClockWise, stop } = this.state;
-    this.setState({stop:true},()=>{
-      if(ClockWise || stop) {
-        this.setState({stop: false, ClockWise: false},()=>{
-          this.spin();
-        })
-      }
-    });
+    if(ClockWise){
+      this.spinValue = new Animated.Value(0);
+      this.setState({ ClockWise: false, stop:false});
+      this.spin();
+    }
   }
   spin () {
     this.spinValue.setValue(0)
@@ -44,20 +40,22 @@ export default class RotationAnimationComponent extends Component<Props> {
         easing: Easing.linear
       }
     ).start(()=>{
-      if(!this.state.stop){
-        this.spin();
-      }
+      this.spin();
     });
   }
   stop(){
+    this.spinValue = new Animated.Value(0);
     this.setState({stop:true});
   }
   render() {
-    let { ClockWise } = this.state;
-    const spin = this.spinValue.interpolate({
+    let { ClockWise, stop } = this.state;
+    let spin = this.spinValue.interpolate({
       inputRange: [0, 1],
       outputRange: ['0deg', ClockWise ? '360deg' : '-360deg']
     })
+    if(stop){
+      spin="0deg";
+    }
     return (
       <SafeAreaView style={styles.safeAreaView}>
         <View style={styles.container}>
